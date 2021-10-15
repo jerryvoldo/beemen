@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FormController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,5 +21,10 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth'])->name('dashboard');
+
+Route::get('/form', [FormController::class, 'index'])->middleware(['auth'])->name('form');
+Route::get('/form/spb', [FormController::class, 'viewspb'])->middleware(['auth'])->name('form.spb');
+Route::get('/form/sbbk', [FormController::class, 'viewsbbk'])->middleware(['auth'])->name('form.sbbk');
+Route::post('/form/storesbb', [FormController::class, 'storesbb'])->middleware(['auth'])->name('form.storesbb');
 
 require __DIR__.'/auth.php';
