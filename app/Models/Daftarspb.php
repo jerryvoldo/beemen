@@ -8,4 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Daftarspb extends Model
 {
     use HasFactory;
+
+    public $timestamps = false;
 }

@@ -22,6 +22,18 @@
                         {{ __('Form Isian') }}
                     </x-nav-link>
                 </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-nav-link :href="route('daftar.ajus')" :active="request()->routeIs('daftar.ajus')">
+                        {{ __('Daftar Pengajuan') }}
+                    </x-nav-link>
+                </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                    <x-nav-link :href="route('form')" :active="request()->routeIs('form')">
+                        {{ __('Kartu Stok') }}
+                    </x-nav-link>
+                </div>
             </div>
 
             <!-- Settings Dropdown -->
