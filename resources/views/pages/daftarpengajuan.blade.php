@@ -16,7 +16,8 @@
                                 <th class="border border-gray-800 px-2">No SPB</th>
                                 <th class="border border-gray-800 px-2">Tanggal Aju</th>
                                 <th class="border border-gray-800 px-2">Disetujui</th>
-                                <th class="border border-gray-800 px-2">Detail</th>
+                                <th class="border border-gray-800 px-2">Realisasi</th>
+                                <th class="border border-gray-800 px-2">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -28,14 +29,19 @@
                                 <?php $i=1?>
                                 @foreach($daftaraju as $aju)
                                 <tr>
-                                    <td class="border border-gray-800 px-2"><?=$i?></td>
+                                    <td class="border border-gray-800 px-2 py-1"><?=$i?></td>
                                     <td class="border border-gray-800 px-2">{{ $aju->nomor_spb }}</td>
                                     <td class="border border-gray-800 px-2">{{ date('d F Y', $aju->epoch_spb) }}</td>
                                     <td class="border border-gray-800 px-2">
-                                        <?= ( !$aju->isApproved ? '<div class="text-white bg-gray-900 rounded px-1">Belum</div>' :  '<div class="text-white bg-green-500 rounded px-1">Sudah</div>' ) ?>
+                                        <?= ( !$aju->isApproved ? '<div class="text-white bg-gray-900 rounded p-1 text-xs text-center font-semibold uppercase">Belum</div>' :  '<div class="text-white bg-green-500 rounded p-1 text-xs text-center font-semibold uppercase">Sudah</div>' ) ?>
                                     </td>
                                     <td class="border border-gray-800 px-2">
-                                        <a href="{{ route('daftar.ajus.spb', $aju->nomor_spb) }}">Lihat</a>
+
+                                        <div class="text-white bg-gray-900 rounded p-1 text-xs text-center font-semibold uppercase">Belum</div>
+                                    </td>
+                                    <td class="border border-gray-800 px-2">
+                                        <a href="{{ route('daftar.ajus.spb', $aju->nomor_spb) }}">detail</a> |
+                                        <a href="{{ route('daftar.ajus.realisasi', $aju->nomor_spb) }}">realisasi</a>
                                     </td>
                                 </tr>
                                 <?php $i++?>

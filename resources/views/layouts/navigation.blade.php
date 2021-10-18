@@ -30,7 +30,7 @@
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
-                    <x-nav-link :href="route('form')" :active="request()->routeIs('form')">
+                    <x-nav-link :href="route('daftar.stok')" :active="request()->routeIs('daftar.stok')">
                         {{ __('Kartu Stok') }}
                     </x-nav-link>
                 </div>

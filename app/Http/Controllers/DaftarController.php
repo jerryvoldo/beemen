@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Spb;
 use App\Models\Daftarspb;
+use App\Models\Barang;
+use App\Models\Kartustok;
 
 class DaftarController extends Controller
 {
@@ -18,6 +21,12 @@ class DaftarController extends Controller
         //
         $daftaraju = Daftarspb::orderBy('epoch_spb', 'desc')->get();
         return view('pages.daftarpengajuan', ['daftaraju' => $daftaraju]);
+    }
+
+    public function viewstok()
+    {
+         $daftarstok = Barang::orderBy('nama_barang', 'desc')->get();
+        return view('pages.kartustok', ['daftarstok' => $daftarstok]);
     }
 
     public function updateSpbIsApproved(Request $request)
@@ -67,6 +76,7 @@ class DaftarController extends Controller
     public function show($nomor_spb)
     {
         //
+        $ajuApproval = Daftarspb::where('nomor_spb', '=', $nomor_spb)->first();
         $detailaju = DB::table('spbs')
                             ->join('barangs', 'spbs.barang_id', '=', 'barangs.id')
                             ->join('pemesans', 'spbs.pemesan_id', '=', 'pemesans.id')
@@ -83,8 +93,11 @@ class DaftarController extends Controller
                                         'barangs.*', 
                                         'pemesans.poksi')
                             ->get();
-        // dd($detailaju);
-        return view('pages.detailaju', ['detailaju' => $detailaju]);
+        // dd($aju->isApproved);
+        return view('pages.detailaju', [
+                                        'detailaju' => $detailaju,
+                                        'ajuApproval' => $ajuApproval
+                                    ]);
     }
 
     /**
@@ -119,5 +132,32 @@ class DaftarController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function realisasispb($nomor_spb)
+    {
+        $dataspb = Spb::where('nomor_spb', '=', $nomor_spb)
+                        ->join('barangs', 'spbs.barang_id', 'barangs.id')
+                        ->select('barangs.*', 'spbs.*')
+                        ->get();
+        return view('pages.realisasispb', ['dataspb' => $dataspb]);
+    }
+
+    public function storerealisasispb(Request $request)
+    {
+        dd($request->request);
+        // $kartustok = new Kartustok;
+        // foreach($request->input('nomor_kartu') as $key=>$nomor)
+        // {
+        //         print_r ($key);
+        //         // $kartustok->nomor_kartu = $key;
+        //         // $kartustok->masuk = $req;
+        //         // $kartustok->keluar = 0;
+        //         // $kartustok->sisa = $kartustok->masuk - $kartustok->keluar;
+        //         // $kartustok->nomor_spb = $request->input('nomor_spb');
+        //         // $kartustok->save();
+        // }
+
+        // // return redirect()->route('daftar.ajus');
     }
 }
