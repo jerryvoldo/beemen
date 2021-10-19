@@ -26,7 +26,7 @@
                                 <th class="border border-gray-800 px-2">Peruntukan</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody>                                                   
                              @if($detailaju->isEmpty())
                             <tr>
                                 <td class="border border-gray-800 px-2 text-center" colspan="4">Belum ada data</td>
@@ -39,7 +39,7 @@
                                     <td class="border border-gray-800 px-2">{{ $aju->nomor_kartu }}</td>
                                     <td class="border border-gray-800 px-2">{{ $aju->nama_barang }}</td>
                                     <td class="border border-gray-800 px-2" align="right">{{ $aju->jumlah_pesanan }}</td>
-                                    <td class="border border-gray-800 px-2" align="right">0</td>
+                                    <td class="border border-gray-800 px-2" align="right">{{ $aju->masuk }}</td>
                                     <td class="border border-gray-800 px-2">
                                         {{ $aju->satuan }}
                                     </td>

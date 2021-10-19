@@ -19,13 +19,17 @@ class DaftarController extends Controller
     public function viewajus()
     {
         //
-        $daftaraju = Daftarspb::orderBy('epoch_spb', 'desc')->get();
+        $daftaraju = Daftarspb::orderBy('epoch_spb', 'desc')
+                    ->get()->toArray();
+        // dd($daftaraju);
         return view('pages.daftarpengajuan', ['daftaraju' => $daftaraju]);
     }
 
     public function viewstok()
     {
-         $daftarstok = Barang::orderBy('nama_barang', 'desc')->get();
+         $daftarstok = Barang::orderBy('nama_barang', 'desc')
+                        ->get();
+        dd($daftarstok);
         return view('pages.kartustok', ['daftarstok' => $daftarstok]);
     }
 
@@ -80,7 +84,8 @@ class DaftarController extends Controller
         $detailaju = DB::table('spbs')
                             ->join('barangs', 'spbs.barang_id', '=', 'barangs.id')
                             ->join('pemesans', 'spbs.pemesan_id', '=', 'pemesans.id')
-                            ->where('nomor_spb', '=',  $nomor_spb)
+                            ->join('kartustoks', 'barangs.nomor_kartu', 'kartustoks.nomor_kartu')
+                            ->where('spbs.nomor_spb', '=',  $nomor_spb)
                             ->select(
                                         'spbs.id as id_spbs',
                                         'spbs.barang_id',
@@ -91,9 +96,11 @@ class DaftarController extends Controller
                                         'spbs.epoch_entry',
                                         'spbs.isAju',
                                         'barangs.*', 
-                                        'pemesans.poksi')
+                                        'pemesans.poksi',
+                                        'kartustoks.masuk',
+                                    )
                             ->get();
-        // dd($aju->isApproved);
+        // dd($detailaju);
         return view('pages.detailaju', [
                                         'detailaju' => $detailaju,
                                         'ajuApproval' => $ajuApproval
@@ -145,19 +152,29 @@ class DaftarController extends Controller
 
     public function storerealisasispb(Request $request)
     {
-        dd($request->request);
-        // $kartustok = new Kartustok;
-        // foreach($request->input('nomor_kartu') as $key=>$nomor)
-        // {
-        //         print_r ($key);
-        //         // $kartustok->nomor_kartu = $key;
-        //         // $kartustok->masuk = $req;
-        //         // $kartustok->keluar = 0;
-        //         // $kartustok->sisa = $kartustok->masuk - $kartustok->keluar;
-        //         // $kartustok->nomor_spb = $request->input('nomor_spb');
-        //         // $kartustok->save();
-        // }
+        // dd($data = $request->except('_token'));
 
-        // // return redirect()->route('daftar.ajus');
+        $kartustok = new Kartustok;
+        $data = $request->except('_token');
+        foreach($data as $key=>$value)
+        {
+            if($key !== "nomor_spb")
+            {
+                $tampungan[] = array('nomor_kartu' => $key,
+                                        'masuk' => $value,
+                                        'keluar' => 0,
+                                        'sisa' => (int) $kartustok->masuk - (int) $kartustok->keluar,
+                                        'nomor_spb' => $request->input('nomor_spb'),
+                                        'epoch' => time()
+                                    );
+            }
+        }
+        if(DB::table('kartustoks')->insert($tampungan))
+        {
+           Daftarspb::where('nomor_spb', '=', $request->input('nomor_spb'))
+                        ->update(['isRealisasi' => true, 'epoch_realisasi' => time()]);
+        }
+
+        return redirect()->route('daftar.ajus');
     }
 }

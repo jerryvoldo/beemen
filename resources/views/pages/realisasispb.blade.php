@@ -25,8 +25,7 @@
                             </div>
                             <div class="w-full">
                                 <label class="block font-semibold text-md mb-1 text-gray-700">Realisasi</label>
-                                <input id="jumlah_realisasi" class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block w-full" type="number" name="jumlah_pesanan[]"   required autofocus />
-                                <input type="hidden" name="nomor_kartu[]" value="{{ $item->nomor_kartu }}">
+                                <input id="jumlah_realisasi" class="rounded-md shadow-sm border-gray-300 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 block w-full" type="number" name="{{ $item->nomor_kartu }}"   required autofocus />
                             </div>
                         </div>
                        @endforeach
