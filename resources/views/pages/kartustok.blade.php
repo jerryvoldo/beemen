@@ -21,7 +21,7 @@
                                 <th class="border border-gray-800 px-2">Stok Akhir</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="text-sm">
                              @if($daftarstok->isEmpty())
                             <tr>
                                 <td class="border border-gray-800 px-2 text-center" colspan="7">Belum ada data</td>
@@ -34,9 +34,9 @@
                                     <td class="border border-gray-800 px-2">{{ $stok->nomor_kartu }}</td>
                                     <td class="border border-gray-800 px-2">{{ $stok->nama_barang }}</td>
                                     <td class="border border-gray-800 px-2">{{ $stok->satuan }}</td>
-                                    <td class="border border-gray-800 px-2">0</td>
-                                    <td class="border border-gray-800 px-2">0</td>
-                                    <td class="border border-gray-800 px-2">0</td>
+                                    <td class="border border-gray-800 px-2" align="right">{{($stok->masuk == null ? 0: $stok->masuk)}}</td>
+                                    <td class="border border-gray-800 px-2" align="right">{{($stok->keluar == null ? 0: $stok->keluar)}}</td>
+                                    <td class="border border-gray-800 px-2" align="right">{{($stok->sisa == null ? 0:$stok->sisa)}}</td>
                                 </tr>
                                 <?php $i++?>
                                 @endforeach

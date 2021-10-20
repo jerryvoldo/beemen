@@ -16,14 +16,15 @@
                                 <th class="border border-gray-800 px-2">No SPB</th>
                                 <th class="border border-gray-800 px-2">Tanggal Aju</th>
                                 <th class="border border-gray-800 px-2">Disetujui</th>
-                                <th class="border border-gray-800 px-2">Realisasi</th>
+                                <th class="border border-gray-800 px-2">Pengadaan</th>
+                                <th class="border border-gray-800 px-2">SBBK</th>
                                 <th class="border border-gray-800 px-2">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                              @if($daftaraju->isEmpty())
                             <tr>
-                                <td class="border border-gray-800 px-2 text-center" colspan="4">Belum ada data</td>
+                                <td class="border border-gray-800 px-2 text-center" colspan="6">Belum ada data</td>
                             </tr>
                             @else
                                 <?php $i=1?>
@@ -42,11 +43,22 @@
                                         <div class="text-white bg-gray-900 rounded p-1 text-xs text-center font-semibold uppercase">Belum</div>
                                         @endif
                                     </td>
+                                    <td class="border border-gray-800 px-2 py-1">
+                                        @if($aju->isSbbk)
+                                            <div class="text-white bg-green-500 rounded p-1 text-xs text-center font-semibold uppercase">sudah</div>
+                                        @else
+                                            <div class="text-white bg-gray-900 rounded p-1 text-xs text-center font-semibold uppercase">Belum</div>
+                                        @endif
+                                        
+                                    </td>
                                     <td class="border border-gray-800 px-2">
                                         <a href="{{ route('daftar.ajus.spb', $aju->nomor_spb) }}">detail</a> 
-                                        @if(!$aju->isRealisasi)
-                                        |
-                                        <a href="{{ route('daftar.ajus.realisasi', $aju->nomor_spb) }}">realisasi</a>
+                                        @if(!$aju->isRealisasi && $aju->isApproved)
+                                            | <a href="{{ route('daftar.ajus.realisasi', $aju->nomor_spb) }}">realisasi</a>
+                                        @elseif($aju->isRealisasi && $aju->isApproved)
+                                            @if(!$aju->isSbbk)
+                                             | <a href="{{ route('daftar.ajus.sbbk.view', $aju->nomor_spb) }}">buat SBBK</a>
+                                            @endif
                                         @endif
                                     </td>
                                 </tr>

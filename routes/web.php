@@ -30,6 +30,7 @@ Route::get('/daftar/ajus', [DaftarController::class, 'viewajus'])->middleware(['
 Route::get('/daftar/stok', [DaftarController::class, 'viewstok'])->middleware(['auth'])->name('daftar.stok');
 Route::get('/daftar/ajus/{nomor_spb}', [DaftarController::class, 'show'])->middleware(['auth'])->name('daftar.ajus.spb');
 Route::get('/daftar/ajus/realisasi/{nomor_spb}', [DaftarController::class, 'realisasispb'])->middleware(['auth'])->name('daftar.ajus.realisasi');
+Route::get('/daftar/ajus/sbbk/view/{nomor_spb}', [DaftarController::class, 'viewsbbk'])->middleware(['auth'])->name('daftar.ajus.sbbk.view');
 
 
 Route::post('/form/storesbb', [FormController::class, 'storesbb'])->middleware(['auth'])->name('form.storesbb');
@@ -37,6 +38,7 @@ Route::post('/form/storeallsbb', [FormController::class, 'storeallsbb'])->middle
 Route::post('/form/spb/delete', [FormController::class, 'deleteItem'])->middleware(['auth'])->name('form.deleteItem');
 Route::post('/daftar/ajus/approval', [DaftarController::class, 'updateSpbIsApproved'])->middleware(['auth'])->name('daftar.ajus.approval');
 Route::post('/daftar/ajus/realisasi', [DaftarController::class, 'storerealisasispb'])->middleware(['auth'])->name('daftar.ajus.realisasi.store');
+Route::post('/daftar/ajus/sbbk', [DaftarController::class, 'buatsbbk'])->middleware(['auth'])->name('daftar.ajus.sbbk.buatsbbk');
 
 
 require __DIR__.'/auth.php';

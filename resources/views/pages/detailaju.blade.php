@@ -21,7 +21,6 @@
                                 <th class="border border-gray-800 px-2">Nomor Kartu</th>
                                 <th class="border border-gray-800 px-2">Nama Barang</th>
                                 <th class="border border-gray-800 px-2">Jumlah Pesanan</th>
-                                <th class="border border-gray-800 px-2">Realisasi</th>
                                 <th class="border border-gray-800 px-2">Satuan</th>
                                 <th class="border border-gray-800 px-2">Peruntukan</th>
                             </tr>
@@ -39,7 +38,6 @@
                                     <td class="border border-gray-800 px-2">{{ $aju->nomor_kartu }}</td>
                                     <td class="border border-gray-800 px-2">{{ $aju->nama_barang }}</td>
                                     <td class="border border-gray-800 px-2" align="right">{{ $aju->jumlah_pesanan }}</td>
-                                    <td class="border border-gray-800 px-2" align="right">{{ $aju->masuk }}</td>
                                     <td class="border border-gray-800 px-2">
                                         {{ $aju->satuan }}
                                     </td>
@@ -77,6 +75,12 @@
                                 <x-button class="ml-3 bg-green-700">
                                     {{ __('Print SPB') }}
                                 </x-button>
+
+                                @if($ajuApproval->isSbbk)
+                                <x-button class="ml-3 bg-blue-700">
+                                    {{ __('Print SBBK') }}
+                                </x-button>
+                                @endif
                         @endif
                     </div>
 

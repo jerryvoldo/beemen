@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Spb;
+use App\Models\Sbbk;
 use App\Models\Daftarspb;
 use App\Models\Barang;
 use App\Models\Kartustok;
@@ -20,16 +21,18 @@ class DaftarController extends Controller
     {
         //
         $daftaraju = Daftarspb::orderBy('epoch_spb', 'desc')
-                    ->get()->toArray();
+                    ->get();
         // dd($daftaraju);
         return view('pages.daftarpengajuan', ['daftaraju' => $daftaraju]);
     }
 
     public function viewstok()
     {
-         $daftarstok = Barang::orderBy('nama_barang', 'desc')
+         $daftarstok = Barang::orderBy('nomor_kartu', 'asc')
+                        ->leftJoin('kartustoks', 'barangs.nomor_kartu', 'kartustoks.nomor_kartu')
+                        ->select('barangs.nomor_kartu', 'barangs.nama_barang', 'barangs.satuan', 'kartustoks.masuk', 'kartustoks.keluar', 'kartustoks.sisa')
                         ->get();
-        dd($daftarstok);
+        // dd($daftarstok);
         return view('pages.kartustok', ['daftarstok' => $daftarstok]);
     }
 
@@ -48,6 +51,34 @@ class DaftarController extends Controller
 
         return redirect()->route('daftar.ajus');
         
+    }
+
+    public function viewsbbk($nomor_spb)
+    {
+        $detailaju = DB::table('spbs')
+                            ->join('barangs', 'spbs.barang_id', '=', 'barangs.id')
+                            ->join('pemesans', 'spbs.pemesan_id', '=', 'pemesans.id')
+                            ->where('spbs.nomor_spb', '=',  $nomor_spb)
+                            ->select(
+                                        'spbs.id as id_spbs',
+                                        'spbs.barang_id',
+                                        'spbs.pemesan_id',
+                                        'spbs.jumlah_pesanan',
+                                        'spbs.nomor_spb',
+                                        'spbs.peruntukan',
+                                        'spbs.epoch_entry',
+                                        'spbs.isAju',
+                                        'barangs.*', 
+                                        'pemesans.poksi',
+                                    )
+                            ->get();
+
+        $stok = Kartustok::select('nomor_kartu', 'masuk', 'keluar')->where('nomor_spb', '=', $nomor_spb)->get();
+        // dd($stok);
+        return view('pages.sbbk', [
+                                        'detailaju' => $detailaju,
+                                        'stok' => $stok
+                                    ]);
     }
 
     /**
@@ -84,7 +115,6 @@ class DaftarController extends Controller
         $detailaju = DB::table('spbs')
                             ->join('barangs', 'spbs.barang_id', '=', 'barangs.id')
                             ->join('pemesans', 'spbs.pemesan_id', '=', 'pemesans.id')
-                            ->join('kartustoks', 'barangs.nomor_kartu', 'kartustoks.nomor_kartu')
                             ->where('spbs.nomor_spb', '=',  $nomor_spb)
                             ->select(
                                         'spbs.id as id_spbs',
@@ -97,7 +127,6 @@ class DaftarController extends Controller
                                         'spbs.isAju',
                                         'barangs.*', 
                                         'pemesans.poksi',
-                                        'kartustoks.masuk',
                                     )
                             ->get();
         // dd($detailaju);
@@ -173,6 +202,33 @@ class DaftarController extends Controller
         {
            Daftarspb::where('nomor_spb', '=', $request->input('nomor_spb'))
                         ->update(['isRealisasi' => true, 'epoch_realisasi' => time()]);
+        }
+
+        return redirect()->route('daftar.ajus');
+    }
+
+    public function buatsbbk(Request $request)
+    {
+        // dd($request->all());
+        $sbbk = new Sbbk;
+        $sbbk->nomor_spb = $request->input('nomor_spb');
+        $sbbk->nip_penerima = $request->input('nip_penerima');
+        $sbbk->epoch_sbbk = time();
+        $sbbk->nomor_sbbk = 'SBBK/WASDAR/'.date("d/m/y", time());
+
+        if($sbbk->save())
+        {
+            // update kartustok
+            $data = $request->except('_token');
+            foreach($data as $key=>$value)
+            {
+                if($key !== "nomor_spb" && $key !== "nip_penerima")
+                {
+                    Kartustok::where('nomor_spb', '=',  $request->input('nomor_spb'))
+                                ->where('nomor_kartu', '=', $key)
+                                ->update(['keluar' => $value, 'nomor_sbbk' => $sbbk->nomor_sbbk]);
+                }
+            }
         }
 
         return redirect()->route('daftar.ajus');

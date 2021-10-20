@@ -15,8 +15,9 @@ class CreateSbbksTable extends Migration
     {
         Schema::create('sbbks', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('daftarspb_id');
-            $table->bigInteger('epoch_pengeluaran')->nullable();
+            $table->bigInteger('nomor_spb');
+            $table->bigInteger('nip_penerima');
+            $table->bigInteger('epoch_sbbk')->nullable();
         });
     }
 

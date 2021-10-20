@@ -10,4 +10,5 @@ class Kartustok extends Model
     use HasFactory;
 
     protected $fillable = ['nomor_kartu', 'masuk', 'keluar', 'sisa', 'nomor_spb', 'nomor_sbbk'];
+    public $timestamps = false;
 }
