@@ -28,11 +28,15 @@ class DaftarController extends Controller
 
     public function viewstok()
     {
-         $daftarstok = Barang::orderBy('nomor_kartu', 'asc')
-                        ->leftJoin('kartustoks', 'barangs.nomor_kartu', 'kartustoks.nomor_kartu')
-                        ->select('barangs.nomor_kartu', 'barangs.nama_barang', 'barangs.satuan', 'kartustoks.masuk', 'kartustoks.keluar', 'kartustoks.sisa')
-                        ->get();
-        // dd($daftarstok);
+        $daftarstok = Barang::select('barangs.nomor_kartu', 'barangs.nama_barang', 'barangs.satuan', 'stok.masuk', 'stok.keluar', 'stok.sisa')
+                                ->leftJoin(
+                                    DB::raw(
+                                            '(SELECT nomor_kartu, SUM(masuk) AS masuk, SUM(keluar) AS keluar, 
+                                                SUM(masuk)-SUM(keluar) AS sisa FROM kartustoks 
+                                                GROUP BY nomor_kartu 
+                                                ORDER BY nomor_kartu ASC) as stok'
+                                            ), 'barangs.nomor_kartu', 'stok.nomor_kartu')
+                                ->get();
         return view('pages.kartustok', ['daftarstok' => $daftarstok]);
     }
 
@@ -81,33 +85,6 @@ class DaftarController extends Controller
                                     ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function show($nomor_spb)
     {
         //
@@ -229,6 +206,9 @@ class DaftarController extends Controller
                                 ->update(['keluar' => $value, 'nomor_sbbk' => $sbbk->nomor_sbbk]);
                 }
             }
+
+            Daftarspb::where('nomor_spb', '=', $request->input('nomor_spb'))
+                        ->update(['isSbbk' => 't', 'epoch_sbbk' => $sbbk->epoch_sbbk]);
         }
 
         return redirect()->route('daftar.ajus');

@@ -52,12 +52,12 @@
                                         
                                     </td>
                                     <td class="border border-gray-800 px-2">
-                                        <a href="{{ route('daftar.ajus.spb', $aju->nomor_spb) }}">detail</a> 
+                                        <a href="{{ route('daftar.ajus.spb', $aju->nomor_spb) }}" class="hover:text-blue-800 hover:underline rounded px-1 bg-gray-200 text-blue-400">detail</a> 
                                         @if(!$aju->isRealisasi && $aju->isApproved)
-                                            | <a href="{{ route('daftar.ajus.realisasi', $aju->nomor_spb) }}">realisasi</a>
+                                            | <a href="{{ route('daftar.ajus.realisasi', $aju->nomor_spb) }}" class="hover:text-blue-800 hover:underline rounded px-1 bg-gray-200 text-blue-400">realisasi</a>
                                         @elseif($aju->isRealisasi && $aju->isApproved)
                                             @if(!$aju->isSbbk)
-                                             | <a href="{{ route('daftar.ajus.sbbk.view', $aju->nomor_spb) }}">buat SBBK</a>
+                                             | <a href="{{ route('daftar.ajus.sbbk.view', $aju->nomor_spb) }}" class="hover:text-blue-800 hover:underline rounded px-1 bg-gray-200 text-blue-400">buat SBBK</a>
                                             @endif
                                         @endif
                                     </td>
