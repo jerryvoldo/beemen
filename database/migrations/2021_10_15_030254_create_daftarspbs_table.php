@@ -19,6 +19,10 @@ class CreateDaftarspbsTable extends Migration
             $table->bigInteger('epoch_spb')->nullable();
             $table->boolean('isApproved')->nullable();
             $table->bigInteger('epoch_approved')->nullable();
+            $table->boolean('isRealisasi')->nullable();
+            $table->bigInteger('epoch_realisasi')->nullable();
+            $table->boolean('isSbbk')->nullable();
+            $table->bigInteger('epoch_sbbk')->nullable();
         });
     }
 

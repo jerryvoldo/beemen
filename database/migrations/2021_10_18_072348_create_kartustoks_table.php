@@ -15,13 +15,13 @@ class CreateKartustoksTable extends Migration
     {
         Schema::create('kartustoks', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('barang_id');
+            $table->bigInteger('nomor_kartu');
             $table->bigInteger('masuk')->default(0);
             $table->bigInteger('keluar')->default(0);
             $table->bigInteger('sisa')->default(0);
             $table->text('nomor_spb')->nullable();
             $table->text('nomor_sbbk')->nullable();
-            $table->timestamps();
+            $table->bigInteger('epoch')->default(0);
         });
     }
 

@@ -18,6 +18,10 @@ class CreateSpbsTable extends Migration
             $table->bigInteger('barang_id');
             $table->bigInteger('pemesan_id');
             $table->bigInteger('jumlah_pesanan');
+            $table->text('nomor_spb');
+            $table->text('peruntukan')->nullable();
+            $table->bigInteger('epoch_entry')->nullable();
+            $table->boolean('isAju')->nullable();
         });
     }
 

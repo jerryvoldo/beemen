@@ -18,7 +18,6 @@ class CreateBarangsTable extends Migration
             $table->bigInteger('nomor_kartu');
             $table->text('nama_barang');
             $table->text('satuan');
-            $table->timestamps();
         });
     }
 
