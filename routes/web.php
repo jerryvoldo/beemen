@@ -32,6 +32,8 @@ Route::get('/daftar/ajus/{nomor_spb}', [DaftarController::class, 'show'])->middl
 Route::get('/daftar/ajus/realisasi/{nomor_spb}', [DaftarController::class, 'realisasispb'])->middleware(['auth'])->name('daftar.ajus.realisasi');
 Route::get('/daftar/ajus/sbbk/view/{nomor_spb}', [DaftarController::class, 'viewsbbk'])->middleware(['auth'])->name('daftar.ajus.sbbk.view');
 
+Route::get('/cetak/spb/{nomor_spb}', [DaftarController::class, 'cetakspb'])->middleware(['auth'])->name('cetak.spb');
+
 
 Route::post('/form/storesbb', [FormController::class, 'storesbb'])->middleware(['auth'])->name('form.storesbb');
 Route::post('/form/storeallsbb', [FormController::class, 'storeallsbb'])->middleware(['auth'])->name('form.storeallsbb');

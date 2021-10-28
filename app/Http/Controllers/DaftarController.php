@@ -9,6 +9,7 @@ use App\Models\Sbbk;
 use App\Models\Daftarspb;
 use App\Models\Barang;
 use App\Models\Kartustok;
+use PDF;
 
 class DaftarController extends Controller
 {
@@ -212,5 +213,30 @@ class DaftarController extends Controller
         }
 
         return redirect()->route('daftar.ajus');
+    }
+
+    public function cetakspb($nomor_spb)
+    {
+        $ajuApproval = Daftarspb::where('nomor_spb', '=', $nomor_spb)->first();
+        $detailaju = DB::table('spbs')
+                            ->join('barangs', 'spbs.barang_id', '=', 'barangs.id')
+                            ->join('pemesans', 'spbs.pemesan_id', '=', 'pemesans.id')
+                            ->where('spbs.nomor_spb', '=',  $nomor_spb)
+                            ->select(
+                                        'spbs.id as id_spbs',
+                                        'spbs.barang_id',
+                                        'spbs.pemesan_id',
+                                        'spbs.jumlah_pesanan',
+                                        'spbs.nomor_spb',
+                                        'spbs.peruntukan',
+                                        'spbs.epoch_entry',
+                                        'spbs.isAju',
+                                        'barangs.*', 
+                                        'pemesans.poksi',
+                                    )
+                            ->get();
+        $pdf = PDF::loadView('pages.printspb', ['detailaju' => $detailaju, 'ajuApproval' => $ajuApproval]);
+        return $pdf->stream();                    
+        // return view('pages.printspb', ['detailaju' => $detailaju, 'ajuApproval' => $ajuApproval]);
     }
 }
