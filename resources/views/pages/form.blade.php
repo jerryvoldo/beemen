@@ -13,11 +13,6 @@
                         <a href="{{ route('form.spb') }}">Surat Pemesanan Barang</a>
                     </div>
                 </div>
-                <div class="text-center p-6 bg-white border-b border-gray-200 hover:bg-purple-400 hover:text-white hover:font-bold rounded">
-                    <div>
-                        <a href="{{ route('form.sbbk') }}">Surat Bukti Barang Keluar</a>
-                    </div>
-                </div>
             </div>
         </div>
     </div>

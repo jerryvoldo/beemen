@@ -4,11 +4,13 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use App\Models\Spb;
 use App\Models\Sbbk;
 use App\Models\Daftarspb;
 use App\Models\Barang;
 use App\Models\Kartustok;
+
 use PDF;
 
 class DaftarController extends Controller
@@ -22,9 +24,14 @@ class DaftarController extends Controller
     {
         //
         $daftaraju = Daftarspb::orderBy('epoch_spb', 'desc')
-                    ->get();
-        // dd($daftaraju);
-        return view('pages.daftarpengajuan', ['daftaraju' => $daftaraju]);
+                    // ->get()
+                    ->paginate(10);
+        $pemesan = DB::table('spbs')
+                    ->join('pemesans', 'spbs.pemesan_id', 'pemesans.id')
+                    ->where('spbs.nomor_spb', '=', $daftaraju[0]->nomor_spb)
+                    ->select('pemesans.poksi')
+                    ->first();
+        return view('pages.daftarpengajuan', ['daftaraju' => $daftaraju, 'pemesan' => $pemesan]);
     }
 
     public function viewstok()
@@ -37,8 +44,40 @@ class DaftarController extends Controller
                                                 GROUP BY nomor_kartu 
                                                 ORDER BY nomor_kartu ASC) as stok'
                                             ), 'barangs.nomor_kartu', 'stok.nomor_kartu')
-                                ->get();
+                                // ->get();
+                                ->paginate(20);
         return view('pages.kartustok', ['daftarstok' => $daftarstok]);
+    }
+
+    public function viewtambahitemstok()
+    {
+        $barangs = Barang::orderBy('nama_barang', 'asc')->paginate(10);
+        $max_id = rand(10000,20000);
+        return view('pages.tambahitemstok', ['barangs' => $barangs, 'max_id' => $max_id]);
+    }
+
+    public function tambahitemstok(Request $request)
+    {
+        if(! Gate::allows('superadmin'))
+        {
+            abort(403);
+        }
+        else
+        {
+            $barangbaru = new Barang;
+            $barangbaru->nomor_kartu = $request->input('nomor_kartu');
+            $barangbaru->nama_barang = $request->input('nama_barang');
+            $barangbaru->satuan = $request->input('satuan_barang');
+            $barangbaru->save();
+            return redirect()->route('form.stok.item.tambah');
+        }
+    }
+
+    public function hapusitemstok(Request $request)
+    {
+        Barang::where('id', $request->item_id)->delete();
+        
+        return redirect()->route('form.stok.item.tambah');
     }
 
     public function updateSpbIsApproved(Request $request)
@@ -46,7 +85,7 @@ class DaftarController extends Controller
         if($request->input('setuju'))
         {
             Daftarspb::where('nomor_spb', '=', $request->input('nomor_spb'))
-                    ->update(['isApproved' => 't']);
+                    ->update(['isApproved' => 't', 'epoch_approved' => time()]);
         }
         else
         {
@@ -76,7 +115,8 @@ class DaftarController extends Controller
                                         'barangs.*', 
                                         'pemesans.poksi',
                                     )
-                            ->get();
+                            // ->get();
+                            ->paginate(10);
 
         $stok = Kartustok::select('nomor_kartu', 'masuk', 'keluar')->where('nomor_spb', '=', $nomor_spb)->get();
         // dd($stok);
@@ -106,7 +146,8 @@ class DaftarController extends Controller
                                         'barangs.*', 
                                         'pemesans.poksi',
                                     )
-                            ->get();
+                            // ->get();
+                            ->paginate(10);
         // dd($detailaju);
         return view('pages.detailaju', [
                                         'detailaju' => $detailaju,
@@ -114,39 +155,7 @@ class DaftarController extends Controller
                                     ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
+   
 
     public function realisasispb($nomor_spb)
     {
@@ -238,5 +247,69 @@ class DaftarController extends Controller
         $pdf = PDF::loadView('pages.printspb', ['detailaju' => $detailaju, 'ajuApproval' => $ajuApproval]);
         return $pdf->stream();                    
         // return view('pages.printspb', ['detailaju' => $detailaju, 'ajuApproval' => $ajuApproval]);
+    }
+
+    public function printspb(Request $request)
+    {
+        //
+        $nomor_spb = $request->input('nomor_spb');
+        $ajuApproval = Daftarspb::where('nomor_spb', '=', $nomor_spb)->first();
+        $detailaju = DB::table('spbs')
+                            ->join('barangs', 'spbs.barang_id', '=', 'barangs.id')
+                            ->join('pemesans', 'spbs.pemesan_id', '=', 'pemesans.id')
+                            ->where('spbs.nomor_spb', '=',  $nomor_spb)
+                            ->select(
+                                        'spbs.id as id_spbs',
+                                        'spbs.barang_id',
+                                        'spbs.pemesan_id',
+                                        'spbs.jumlah_pesanan',
+                                        'spbs.nomor_spb',
+                                        'spbs.peruntukan',
+                                        'spbs.epoch_entry',
+                                        'spbs.isAju',
+                                        'barangs.*', 
+                                        'pemesans.poksi',
+                                    )
+                            ->get();
+        // dd($detailaju);
+        $pdf = PDF::loadView('pages.printspb', [
+                                        'detailaju' => $detailaju,
+                                        'ajuApproval' => $ajuApproval
+                                    ]);
+        return $pdf->stream();
+        // return view('pages.detailaju', [
+    //                                     'detailaju' => $detailaju,
+    //                                     'ajuApproval' => $ajuApproval
+    //                                 ]);
+    }
+
+    public function printsbbk(Request $request)
+    {
+        //
+        $nomor_spb = $request->input('nomor_spb');
+        $ajuApproval = Daftarspb::where('nomor_spb', '=', $nomor_spb)->first();
+        $detailaju = DB::table('spbs')
+                            ->join('barangs', 'spbs.barang_id', '=', 'barangs.id')
+                            ->join('pemesans', 'spbs.pemesan_id', '=', 'pemesans.id')
+                            ->where('spbs.nomor_spb', '=',  $nomor_spb)
+                            ->select(
+                                        'spbs.id as id_spbs',
+                                        'spbs.barang_id',
+                                        'spbs.pemesan_id',
+                                        'spbs.jumlah_pesanan',
+                                        'spbs.nomor_spb',
+                                        'spbs.peruntukan',
+                                        'spbs.epoch_entry',
+                                        'spbs.isAju',
+                                        'barangs.*', 
+                                        'pemesans.poksi',
+                                    )
+                            ->get();
+        // dd($detailaju);
+        $pdf = PDF::loadView('pages.printsbbk', [
+                                        'detailaju' => $detailaju,
+                                        'ajuApproval' => $ajuApproval
+                                    ]);
+        return $pdf->stream();
     }
 }

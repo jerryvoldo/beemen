@@ -52,7 +52,7 @@
                     </table>
                     <div class="flex items-center justify-end mt-4">
                         @if(!$ajuApproval->isApproved)
-
+                            @can('superadmin')
                             <form method="POST" action="{{ route('daftar.ajus.approval') }}">
                                 @csrf
                                 <input type="hidden" name="nomor_spb" value="{{ $detailaju[0]->nomor_spb }}">
@@ -61,29 +61,30 @@
                                     {{ __('Setuju') }}
                                 </x-button>
                             </form>
-                       
-
-                            <form method="POST" action="{{ route('daftar.ajus.approval') }}">
+                            @endcan
+                        @else
+                            <form method="POST" action="{{ route('daftar.ajus.spb.print') }}">
                                 @csrf
                                 <input type="hidden" name="nomor_spb" value="{{ $detailaju[0]->nomor_spb }}">
-                                <input type="hidden" name="setuju" value="false">
-                                <x-button class="ml-3">
-                                    {{ __('Tidak setuju') }}
-                                </x-button>
-                            </form>
-                        @else
                                 <x-button class="ml-3 bg-green-700">
                                     {{ __('Print SPB') }}
                                 </x-button>
+                            </form>
 
-                                @if($ajuApproval->isSbbk)
+                            @if($ajuApproval->isSbbk)
+                            <form method="POST" action="{{ route('daftar.ajus.sbbk.print') }}">
+                                @csrf
+                                <input type="hidden" name="nomor_spb" value="{{ $detailaju[0]->nomor_spb }}">
                                 <x-button class="ml-3 bg-blue-700">
                                     {{ __('Print SBBK') }}
                                 </x-button>
-                                @endif
+                            </form>
+                            @endif
                         @endif
                     </div>
-
+                    <p class="mt-4 text-center">
+                        {{ $detailaju->onEachSide(5)->links() }}
+                    </p>
                 </div>
             </div>
         </div>

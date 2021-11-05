@@ -2,7 +2,7 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-	<title>Cetak SPB</title>
+	<title>Cetak SBBK</title>
 
 	<style type="text/css">
 		table {
@@ -22,7 +22,7 @@
 </head>
 <body>
 <center>
-	<h2>SURAT PERMINTAAN BARANG (SPB)</h2>
+	<h2>SURAT BUKTI BARANG KELUAR (SBBK)</h2>
 </center>
 <p>
 	<table>
@@ -96,8 +96,31 @@
 			</td>
 		</tr>
 	</table>
-	
+	</p>
+
+<p >
+	<table border="1" style="position: absolute;">	
+		<thead>
+			<tr>
+				<th colspan="2">PENERIMA</th>
+				<th colspan="2">PETUGAS PENGELOLA PERSEDIAAN</th>
+			</tr>
+			<tr>
+				<th>Nama</th>
+				<th>TTD/tanggal</th>
+				<th>Nama</th>
+				<th>TTD/tanggal</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr>
+				<td><br><br><br><br></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+	</table>
 </p>
-</center>
 </body>
 </html>
