@@ -51,9 +51,17 @@ class DaftarController extends Controller
 
     public function viewtambahitemstok()
     {
-        $barangs = Barang::orderBy('nama_barang', 'asc')->paginate(10);
-        $max_id = rand(10000,20000);
-        return view('pages.tambahitemstok', ['barangs' => $barangs, 'max_id' => $max_id]);
+         if(! Gate::allows('superadmin'))
+        {
+            abort(403);
+        }
+        else
+        {
+            $barangs = Barang::orderBy('nama_barang', 'asc')->paginate(10);
+            $max_id = rand(10000,20000);
+            return view('pages.tambahitemstok', ['barangs' => $barangs, 'max_id' => $max_id]);
+        }
+        
     }
 
     public function tambahitemstok(Request $request)
@@ -75,26 +83,39 @@ class DaftarController extends Controller
 
     public function hapusitemstok(Request $request)
     {
-        Barang::where('id', $request->item_id)->delete();
-        
-        return redirect()->route('form.stok.item.tambah');
+        if(! Gate::allows('superadmin'))
+        {
+            abort(403);
+        }
+        else 
+        {
+            Barang::where('id', $request->item_id)->delete();
+            return redirect()->route('form.stok.item.tambah');
+        }   
     }
 
     public function updateSpbIsApproved(Request $request)
     {
-        if($request->input('setuju'))
+
+        if(! Gate::allows('admin'))
         {
-            Daftarspb::where('nomor_spb', '=', $request->input('nomor_spb'))
-                    ->update(['isApproved' => 't', 'epoch_approved' => time()]);
+            abort(403);
         }
         else
         {
-             Daftarspb::where('nomor_spb', '=', $request->input('nomor_spb'))
-                    ->update(['isApproved' => 'f']);
-        }
+            if($request->input('setuju'))
+            {
+                Daftarspb::where('nomor_spb', '=', $request->input('nomor_spb'))
+                        ->update(['isApproved' => 't', 'epoch_approved' => time()]);
+            }
+            else
+            {
+                 Daftarspb::where('nomor_spb', '=', $request->input('nomor_spb'))
+                        ->update(['isApproved' => 'f']);
+            }
 
-        return redirect()->route('daftar.ajus');
-        
+            return redirect()->route('daftar.ajus');
+        }
     }
 
     public function viewsbbk($nomor_spb)
@@ -168,35 +189,43 @@ class DaftarController extends Controller
 
     public function storerealisasispb(Request $request)
     {
-        // dd($data = $request->except('_token'));
-
-        $kartustok = new Kartustok;
-        $data = $request->except('_token');
-        foreach($data as $key=>$value)
+        if(! Gate::allows('admin'))
         {
-            if($key !== "nomor_spb")
+            abort(403);
+        }
+        else
+        {
+            $kartustok = new Kartustok;
+            $data = $request->except('_token');
+            foreach($data as $key=>$value)
             {
-                $tampungan[] = array('nomor_kartu' => $key,
-                                        'masuk' => $value,
-                                        'keluar' => 0,
-                                        'sisa' => (int) $kartustok->masuk - (int) $kartustok->keluar,
-                                        'nomor_spb' => $request->input('nomor_spb'),
-                                        'epoch' => time()
-                                    );
+                if($key !== "nomor_spb")
+                {
+                    $tampungan[] = array('nomor_kartu' => $key,
+                                            'masuk' => $value,
+                                            'keluar' => 0,
+                                            'sisa' => (int) $kartustok->masuk - (int) $kartustok->keluar,
+                                            'nomor_spb' => $request->input('nomor_spb'),
+                                            'epoch' => time()
+                                        );
+                }
             }
-        }
-        if(DB::table('kartustoks')->insert($tampungan))
-        {
-           Daftarspb::where('nomor_spb', '=', $request->input('nomor_spb'))
-                        ->update(['isRealisasi' => true, 'epoch_realisasi' => time()]);
-        }
 
-        return redirect()->route('daftar.ajus');
+            if(DB::table('kartustoks')->insert($tampungan))
+            {
+               Daftarspb::where('nomor_spb', '=', $request->input('nomor_spb'))->update(['isRealisasi' => true, 'epoch_realisasi' => time()]);
+            }
+
+            return redirect()->route('daftar.ajus');
+        }
     }
 
     public function buatsbbk(Request $request)
     {
-        // dd($request->all());
+        if(! Gate::allows('admin'))
+        {
+            abort(403);
+        }
         $sbbk = new Sbbk;
         $sbbk->nomor_spb = $request->input('nomor_spb');
         $sbbk->nip_penerima = $request->input('nip_penerima');
