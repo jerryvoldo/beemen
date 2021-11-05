@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
             $table->string('password');
             $table->bigInteger('nip')->nullable();
             $table->text('poksi')->nullable();
+            $table->integer('role')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
