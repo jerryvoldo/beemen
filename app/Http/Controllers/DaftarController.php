@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use App\Models\User;
 use App\Models\Spb;
 use App\Models\Sbbk;
 use App\Models\Daftarspb;
@@ -23,15 +24,21 @@ class DaftarController extends Controller
     public function viewajus()
     {
         //
-        $daftaraju = Daftarspb::orderBy('epoch_spb', 'desc')
-                    // ->get()
-                    ->paginate(10);
-        $pemesan = DB::table('spbs')
+        $daftaraju = Daftarspb::orderBy('epoch_spb', 'desc')->paginate(10);
+        if(count($daftaraju)) 
+        {
+            $pemesan = DB::table('spbs')
                     ->join('pemesans', 'spbs.pemesan_id', 'pemesans.id')
                     ->where('spbs.nomor_spb', '=', $daftaraju[0]->nomor_spb)
                     ->select('pemesans.poksi')
                     ->first();
         return view('pages.daftarpengajuan', ['daftaraju' => $daftaraju, 'pemesan' => $pemesan]);
+        }
+        else
+        {
+            return view('pages.daftarpengajuan', ['daftaraju' => null, 'pemesan' => null]);
+        }
+        
     }
 
     public function viewstok()
@@ -44,8 +51,7 @@ class DaftarController extends Controller
                                                 GROUP BY nomor_kartu 
                                                 ORDER BY nomor_kartu ASC) as stok'
                                             ), 'barangs.nomor_kartu', 'stok.nomor_kartu')
-                                // ->get();
-                                ->paginate(20);
+                                ->paginate(10);
         return view('pages.kartustok', ['daftarstok' => $daftarstok]);
     }
 

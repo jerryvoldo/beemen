@@ -26,9 +26,9 @@
                             </tr>
                         </thead>
                         <tbody>
-                             @if($daftaraju->isEmpty())
+                             @if(is_null($daftaraju))
                             <tr>
-                                <td class="border border-gray-800 px-2 text-center" colspan="6">Belum ada data</td>
+                                <td class="border border-gray-800 px-2 text-center" colspan="8">Belum ada data</td>
                             </tr>
                             @else
                                 <?php $i=1?>
@@ -76,9 +76,11 @@
                             @endif
                         </tbody>
                     </table>
+                    @if(null !== $daftaraju)
                     <p class="mt-4 text-center">
                         {{ $daftaraju->onEachSide(5)->links() }}
                     </p>
+                    @endif
                 </div>
             </div>
         </div>

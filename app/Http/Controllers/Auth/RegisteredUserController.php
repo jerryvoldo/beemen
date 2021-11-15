@@ -37,10 +37,16 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'nip' => ['required'],
+            'poksi' => ['required', 'string']
         ]);
+
 
         $user = User::create([
             'name' => $request->name,
+            'nip' => $request->nip,
+            'poksi' => $request->poksi,
+            'role' => 1,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);

@@ -19,6 +19,20 @@
                 <x-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name')" required autofocus />
             </div>
 
+             <!-- NIP -->
+            <div class="mt-4">
+                <x-label for="nip" :value="__('NIP')" />
+
+                <x-input id="nip" class="block mt-1 w-full" type="number" name="nip" :value="old('nip')" required autofocus />
+            </div>
+
+            <!-- Poksi -->
+            <div class="mt-4">
+                <x-label for="poksi" :value="__('Poksi')" />
+
+                <x-input id="poksi" class="block mt-1 w-full" type="text" name="poksi" :value="old('poksi')" required autofocus />
+            </div>
+
             <!-- Email Address -->
             <div class="mt-4">
                 <x-label for="email" :value="__('Email')" />

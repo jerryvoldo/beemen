@@ -30,11 +30,12 @@ class AuthServiceProvider extends ServiceProvider
         // define hak akses untuk edit/delete/tambah
 
             Gate::define('superadmin', function (User $user) {
-                return ($user->role === 3); // id of superadmin
+                return ($user->role === 3);
             });
 
             Gate::define('admin', function (User $user) {
-                return $user->role === 2;
+                //return $user->role === 2;
+                return ($user->role === 2 ? true : ($user->role === 3 ? true : false));
             });
 
             Gate::define('user', function (User $user) {

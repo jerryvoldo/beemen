@@ -72,11 +72,12 @@ class FormController extends Controller
 
         $item_spb = new Spb;
         $item_spb->barang_id = $request->input('nama_barang');
-        $item_spb->pemesan_id = $request->user()->nip;
+        $item_spb->pemesan_id = Auth::user()->nip;
         $item_spb->jumlah_pesanan = $request->input('jumlah_barang');
         $item_spb->nomor_spb = $request->session()->get('nomor_spb');
         $item_spb->epoch_entry = strtotime(date("Y/m/d"));
         $item_spb->peruntukan = $request->input('peruntukan');
+        $item_spb->isAju = false;
         $item_spb->save();
 
 
