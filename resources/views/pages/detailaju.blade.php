@@ -14,13 +14,16 @@
                         <div class="capitalize text-sm font-bold">Tanggal: {{ date('d F Y', $detailaju[0]->epoch_entry) }}</div>
                         <div class="capitalize text-sm font-bold">Pemesan : {{ $detailaju[0]->poksi }}</div>
                     </div>
+
                     <table class="table-auto border-collapse border border-gray-800 w-full">
                         <thead class="bg-gray-400">
                             <tr>
                                 <th class="border border-gray-800 px-2">No</th>
                                 <th class="border border-gray-800 px-2">Nomor Kartu</th>
                                 <th class="border border-gray-800 px-2">Nama Barang</th>
-                                <th class="border border-gray-800 px-2">Jumlah Pesanan</th>
+                                <th class="border border-gray-800 px-2">Masuk</th>
+                                <th class="border border-gray-800 px-2">Keluar</th>
+                                <th class="border border-gray-800 px-2">Sisa Aju</th>
                                 <th class="border border-gray-800 px-2">Satuan</th>
                                 <th class="border border-gray-800 px-2">Peruntukan</th>
                             </tr>
@@ -37,7 +40,9 @@
                                     <td class="border border-gray-800 px-2"><?=$i?></td>
                                     <td class="border border-gray-800 px-2">{{ $aju->nomor_kartu }}</td>
                                     <td class="border border-gray-800 px-2">{{ $aju->nama_barang }}</td>
-                                    <td class="border border-gray-800 px-2" align="right">{{ $aju->jumlah_pesanan }}</td>
+                                    <td class="border border-gray-800 px-2" align="right">{{ (null == $aju->masuk ? 0 : $aju->masuk) }}</td>
+                                    <td class="border border-gray-800 px-2" align="right">{{ (null == $aju->keluar ? 0 : $aju->keluar) }}</td>
+                                    <td class="border border-gray-800 px-2" align="right">{{ (null == $aju->sisa ? 0 : $aju->sisa) }}</td>
                                     <td class="border border-gray-800 px-2">
                                         {{ $aju->satuan }}
                                     </td>
@@ -50,6 +55,7 @@
                             @endif
                         </tbody>
                     </table>
+
                     <div class="flex items-center justify-end mt-4">
                         @if(!$ajuApproval->isApproved)
                             @can('superadmin')
@@ -71,20 +77,62 @@
                                 </x-button>
                             </form>
 
-                            @if($ajuApproval->isSbbk)
-                            <form method="POST" action="{{ route('daftar.ajus.sbbk.print') }}">
-                                @csrf
-                                <input type="hidden" name="nomor_spb" value="{{ $detailaju[0]->nomor_spb }}">
-                                <x-button class="ml-3 bg-blue-700">
-                                    {{ __('Print SBBK') }}
+                            <form method="GET" action="{{ route('daftar.ajus.sbbk.view', $detailaju[0]->nomor_spb) }}">
+                                <x-button class="ml-3 bg-gray-800">
+                                    {{ __('Buat SBBK') }}
                                 </x-button>
                             </form>
-                            @endif
                         @endif
                     </div>
+
+                    <div class="mt-4 mb-2">
+                        <p class="capitalize text-sm font-bold">Daftar SBBK</p>
+                    </div>
+                    <table class="table-auto border-collapse border border-gray-800 w-full">
+                        <thead class="bg-gray-400">
+                            <tr>
+                                <th class="border border-gray-800 px-2">No</th>
+                                <th class="border border-gray-800 px-2">Nomor SBBK</th>
+                                <th class="border border-gray-800 px-2">Tanggal</th>
+                                <th class="border border-gray-800 px-2">Penerima</th>
+                                <th class="border border-gray-800 px-2"></th>
+                            </tr>
+                        </thead>
+                        <tbody>                                                   
+                             @if($detailaju->isEmpty())
+                            <tr>
+                                <td class="border border-gray-800 px-2 text-center" colspan="5">Belum ada data</td>
+                            </tr>
+                            @else
+                                <?php $i=1?>
+                                @foreach($daftarsbbk as $sbbk)
+                                <tr>
+                                    <td class="border border-gray-800 px-2"><?=$i?></td>
+                                    <td class="border border-gray-800 px-2">{{ $sbbk->nomor_sbbk }}</td>
+                                    <td class="border border-gray-800 px-2">{{ date('d F Y', $sbbk->epoch_sbbk) }}</td>
+                                    <td class="border border-gray-800 px-2">{{ $sbbk->nama }}</td>
+                                    <td class="border border-gray-800 px-2 py-1" align="center">
+                                        @if($ajuApproval->isSbbk)
+                                            <form method="POST" action="{{ route('daftar.ajus.sbbk.print') }}">
+                                                @csrf
+                                                <input type="hidden" name="nomor_spb" value="{{ $detailaju[0]->nomor_spb }}">
+                                                <x-button class="ml-3 bg-blue-700">
+                                                    {{ __('Print SBBK') }}
+                                                </x-button>
+                                            </form>
+                                        @endif
+                                    </td>
+                                </tr>
+                                <?php $i++?>
+                                @endforeach
+                            @endif
+                        </tbody>
+                    </table>
+
                     <p class="mt-4 text-center">
                         {{ $detailaju->onEachSide(5)->links() }}
                     </p>
+
                 </div>
             </div>
         </div>

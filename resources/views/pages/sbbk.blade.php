@@ -20,7 +20,10 @@
                                 <th class="border border-gray-800 px-2">No</th>
                                 <th class="border border-gray-800 px-2">Nomor Kartu</th>
                                 <th class="border border-gray-800 px-2">Nama Barang</th>
-                                <th class="border border-gray-800 px-2">Jumlah Pesanan</th>
+                                <th class="border border-gray-800 px-2">Pesan</th>
+                                <th class="border border-gray-800 px-2">Realisasi</th>
+                                <th class="border border-gray-800 px-2">Sisa Aju</th>
+                                <th class="border border-gray-800 px-2">Keluar</th>
                                 <th class="border border-gray-800 px-2">Satuan</th>
                                 <th class="border border-gray-800 px-2">Peruntukan</th>
                             </tr>
@@ -31,6 +34,10 @@
                                 <td class="border border-gray-800 px-2 text-center" colspan="4">Belum ada data</td>
                             </tr>
                             @else
+                            <form method="POST" action="{{ route('daftar.ajus.sbbk.buatsbbk') }}">
+                            @csrf
+                            <input type="hidden" name="nomor_spb" value="{{ $detailaju[0]->nomor_spb }}">
+                            <input type="hidden" name="nip_penerima" value="{{ $detailaju[0]->pemesan_id }}">
                                 <?php $i=1?>
                                 @foreach($detailaju as $aju)
                                 <tr>
@@ -38,6 +45,11 @@
                                     <td class="border border-gray-800 px-2">{{ $aju->nomor_kartu }}</td>
                                     <td class="border border-gray-800 px-2">{{ $aju->nama_barang }}</td>
                                     <td class="border border-gray-800 px-2" align="right">{{ $aju->jumlah_pesanan }}</td>
+                                    <td class="border border-gray-800 px-2" align="right">{{ $aju->masuk }}</td>
+                                    <td class="border border-gray-800 px-2" align="right">{{ $aju->sisa }}</td>
+                                    <td class="border border-gray-800 px-2 py-1" align="center">
+                                        <input class="p-1 rounded bg-gray-300 " type="number" name="{{ $aju->nomor_kartu }}" value="{{ ($aju->sisa == 0) ? 0 : '' }}" {{ ($aju->sisa == 0) ? 'readonly' : '' }}>
+                                    </td>
                                     <td class="border border-gray-800 px-2">
                                         {{ $aju->satuan }}
                                     </td>
@@ -51,18 +63,10 @@
                         </tbody>
                     </table>
                     <div class="flex items-center justify-end mt-4">
-                        <form method="POST" action="{{ route('daftar.ajus.sbbk.buatsbbk') }}">
-                            @csrf
-                            <input type="hidden" name="nomor_spb" value="{{ $detailaju[0]->nomor_spb }}">
-                            @foreach($detailaju as $detaju)
-                                <input type="hidden" name="{{ $detaju->nomor_kartu }}" value="{{ $detaju->jumlah_pesanan }}">
-                            @endforeach
-                            <input type="hidden" name="nip_penerima" value="{{ $detailaju[0]->pemesan_id }}">
                             <x-button class="ml-3 bg-blue-700">
                                 {{ __('Buat SBBK') }}
                             </x-button>
                         </form>
-                       
                     </div>
 
                 </div>

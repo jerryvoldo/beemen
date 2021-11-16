@@ -51,7 +51,7 @@ class DaftarController extends Controller
                                                 GROUP BY nomor_kartu 
                                                 ORDER BY nomor_kartu ASC) as stok'
                                             ), 'barangs.nomor_kartu', 'stok.nomor_kartu')
-                                ->paginate(10);
+                                ->paginate(15);
         return view('pages.kartustok', ['daftarstok' => $daftarstok]);
     }
 
@@ -127,8 +127,12 @@ class DaftarController extends Controller
     public function viewsbbk($nomor_spb)
     {
         $detailaju = DB::table('spbs')
-                            ->join('barangs', 'spbs.barang_id', '=', 'barangs.id')
-                            ->join('pemesans', 'spbs.pemesan_id', '=', 'pemesans.id')
+                            ->leftJoin('barangs', 'spbs.barang_id', '=', 'barangs.id')
+                            ->leftJoin('pemesans', 'spbs.pemesan_id', '=', 'pemesans.id')
+                            ->leftJoin(
+                                        DB::raw("(SELECT * FROM kartustoks WHERE nomor_spb = '$nomor_spb') AS realisasi"), 
+                                        'barangs.nomor_kartu', '=', 'realisasi.nomor_kartu'
+                                    )
                             ->where('spbs.nomor_spb', '=',  $nomor_spb)
                             ->select(
                                         'spbs.id as id_spbs',
@@ -141,16 +145,13 @@ class DaftarController extends Controller
                                         'spbs.isAju',
                                         'barangs.*', 
                                         'pemesans.poksi',
+                                        'realisasi.masuk',
+                                        'realisasi.keluar',
+                                        'realisasi.sisa'
                                     )
-                            // ->get();
                             ->paginate(10);
 
-        $stok = Kartustok::select('nomor_kartu', 'masuk', 'keluar')->where('nomor_spb', '=', $nomor_spb)->get();
-        // dd($stok);
-        return view('pages.sbbk', [
-                                        'detailaju' => $detailaju,
-                                        'stok' => $stok
-                                    ]);
+        return view('pages.sbbk', ['detailaju' => $detailaju]);
     }
 
     public function show($nomor_spb)
@@ -158,8 +159,12 @@ class DaftarController extends Controller
         //
         $ajuApproval = Daftarspb::where('nomor_spb', '=', $nomor_spb)->first();
         $detailaju = DB::table('spbs')
-                            ->join('barangs', 'spbs.barang_id', '=', 'barangs.id')
-                            ->join('pemesans', 'spbs.pemesan_id', '=', 'pemesans.id')
+                            ->leftJoin('barangs', 'spbs.barang_id', '=', 'barangs.id')
+                            ->leftJoin('pemesans', 'spbs.pemesan_id', '=', 'pemesans.id')
+                            ->leftJoin(
+                                        DB::raw("(SELECT * FROM kartustoks WHERE nomor_spb = '$nomor_spb') AS realisasi"), 
+                                        'barangs.nomor_kartu', '=', 'realisasi.nomor_kartu'
+                                    )
                             ->where('spbs.nomor_spb', '=',  $nomor_spb)
                             ->select(
                                         'spbs.id as id_spbs',
@@ -172,13 +177,19 @@ class DaftarController extends Controller
                                         'spbs.isAju',
                                         'barangs.*', 
                                         'pemesans.poksi',
+                                        'realisasi.masuk',
+                                        'realisasi.keluar',
+                                        'realisasi.sisa'
                                     )
-                            // ->get();
                             ->paginate(10);
-        // dd($detailaju);
+        $daftarsbbk = Sbbk::select('sbbks.*', 'pemesans.nama')
+                        ->leftJoin('pemesans', 'sbbks.nip_penerima', '=', 'pemesans.id')
+                        ->where('nomor_spb', '=', $nomor_spb)
+                        ->paginate(10);
         return view('pages.detailaju', [
                                         'detailaju' => $detailaju,
-                                        'ajuApproval' => $ajuApproval
+                                        'ajuApproval' => $ajuApproval,
+                                        'daftarsbbk' => $daftarsbbk
                                     ]);
     }
 
@@ -210,7 +221,7 @@ class DaftarController extends Controller
                     $tampungan[] = array('nomor_kartu' => $key,
                                             'masuk' => $value,
                                             'keluar' => 0,
-                                            'sisa' => (int) $kartustok->masuk - (int) $kartustok->keluar,
+                                            'sisa' => $value,
                                             'nomor_spb' => $request->input('nomor_spb'),
                                             'epoch' => time()
                                         );
@@ -236,7 +247,7 @@ class DaftarController extends Controller
         $sbbk->nomor_spb = $request->input('nomor_spb');
         $sbbk->nip_penerima = $request->input('nip_penerima');
         $sbbk->epoch_sbbk = time();
-        $sbbk->nomor_sbbk = 'SBBK/WASDAR/'.date("d/m/y", time());
+        $sbbk->nomor_sbbk = rand(1000, 9999).'/SBBK/WASDAR/'.date("d/m/y", time());
 
         if($sbbk->save())
         {
@@ -246,9 +257,10 @@ class DaftarController extends Controller
             {
                 if($key !== "nomor_spb" && $key !== "nip_penerima")
                 {
-                    Kartustok::where('nomor_spb', '=',  $request->input('nomor_spb'))
-                                ->where('nomor_kartu', '=', $key)
-                                ->update(['keluar' => $value, 'nomor_sbbk' => $sbbk->nomor_sbbk]);
+                   if($value != 0 && $value > 0)
+                   {
+                    DB::statement("update kartustoks set keluar = keluar + $value, sisa = sisa-$value, nomor_sbbk = '$sbbk->nomor_sbbk' where nomor_spb = '$sbbk->nomor_spb'and nomor_kartu = $key");
+                   }
                 }
             }
 
