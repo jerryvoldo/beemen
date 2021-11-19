@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -23,11 +24,12 @@
 <body>
 <center>
 	<h2>SURAT BUKTI BARANG KELUAR (SBBK)</h2>
+	<h4>Nomor SBBK : {{ $detailaju[0]->nomor_sbbk }}</h4>
 </center>
 <p>
 	<table>
 		<tr>
-			<td>Nomor</td>
+			<td>Nomor SPB</td>
 			<td>:</td>
 			<td>{{ $detailaju[0]->nomor_spb }}</td>
 		</tr>
@@ -47,7 +49,6 @@
 				<th rowspan="2" style="width: 200px ;">NAMA BARANG</th>
 				<th colspan="2">PERMINTAAN</th>
 				<th rowspan="2">PENGAJU</th>
-				<th rowspan="2">DISETUJUI</th>
 			</tr>
 			<tr>
 				<th>QTY</th>
@@ -60,22 +61,22 @@
 				<th>4</th>
 				<th>5</th>
 				<th>6</th>
-				<th>7</th>
 			</tr>
 		</thead>
 		<tbody>
 			<?php $i=1?>
 			@foreach($detailaju as $aju)
+			@if($aju->jumlah_keluar > 0)
 			<tr>
 				<td align="center"><?=$i?></td>
 				<td align="center">{{ $aju->nomor_kartu }}</td>
 				<td>{{ $aju->nama_barang }}</td>
-				<td align="right">{{ $aju->jumlah_pesanan }}</td>
+				<td align="right">{{ $aju->jumlah_keluar }}</td>
 				<td>{{ $aju->satuan }}</td>
 				<td>{{ $aju->poksi }}</td>
-				<td>{{ ($ajuApproval->isApproved ? 'DISETUJUI' : 'TIDAK DISETUJUI') }}</td>
 			</tr>
 			<?php $i++?>
+			@endif
 			@endforeach
 		</tbody>
 	</table>

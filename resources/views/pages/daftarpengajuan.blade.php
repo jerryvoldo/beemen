@@ -21,7 +21,6 @@
                                 <th class="border border-gray-800 px-2">Pengaju</th>
                                 <th class="border border-gray-800 px-2">Disetujui</th>
                                 <th class="border border-gray-800 px-2">Pengadaan</th>
-                                <th class="border border-gray-800 px-2">SBBK</th>
                                 <th class="border border-gray-800 px-2">Aksi</th>
                             </tr>
                         </thead>
@@ -47,14 +46,6 @@
                                         @else
                                         <div class="text-white bg-gray-900 rounded p-1 text-xs text-center font-semibold uppercase">Belum</div>
                                         @endif
-                                    </td>
-                                    <td class="border border-gray-800 px-2 py-1">
-                                        @if($aju->isSbbk)
-                                            <div class="text-white bg-green-500 rounded p-1 text-xs text-center font-semibold uppercase">sudah</div>
-                                        @else
-                                            <div class="text-white bg-gray-900 rounded p-1 text-xs text-center font-semibold uppercase">Belum</div>
-                                        @endif
-                                        
                                     </td>
                                     <td class="border border-gray-800 px-2">
                                         <a href="{{ route('daftar.ajus.spb', $aju->nomor_spb) }}" class="hover:text-blue-800 hover:underline rounded px-1 bg-gray-200 text-blue-400">detail</a> 

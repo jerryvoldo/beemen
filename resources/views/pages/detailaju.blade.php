@@ -76,17 +76,18 @@
                                     {{ __('Print SPB') }}
                                 </x-button>
                             </form>
-
+                            @if($total_sisa > 0)
                             <form method="GET" action="{{ route('daftar.ajus.sbbk.view', $detailaju[0]->nomor_spb) }}">
                                 <x-button class="ml-3 bg-gray-800">
                                     {{ __('Buat SBBK') }}
                                 </x-button>
                             </form>
+                            @endif
                         @endif
                     </div>
 
                     <div class="mt-4 mb-2">
-                        <p class="capitalize text-sm font-bold">Daftar SBBK</p>
+                        <p class="capitalize text-sm font-bold">Daftar SBBK (diurutkan dari paling baru hingga paling dahulu)</p>
                     </div>
                     <table class="table-auto border-collapse border border-gray-800 w-full">
                         <thead class="bg-gray-400">
@@ -115,6 +116,7 @@
                                         @if($ajuApproval->isSbbk)
                                             <form method="POST" action="{{ route('daftar.ajus.sbbk.print') }}">
                                                 @csrf
+                                                <input type="hidden" name="nomor_sbbk" value="{{ $sbbk->nomor_sbbk }}">
                                                 <input type="hidden" name="nomor_spb" value="{{ $detailaju[0]->nomor_spb }}">
                                                 <x-button class="ml-3 bg-blue-700">
                                                     {{ __('Print SBBK') }}

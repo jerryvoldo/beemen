@@ -28,7 +28,7 @@
                                 <th class="border border-gray-800 px-2">Peruntukan</th>
                             </tr>
                         </thead>
-                        <tbody>                                                   
+                        <tbody>                                                  
                              @if($detailaju->isEmpty())
                             <tr>
                                 <td class="border border-gray-800 px-2 text-center" colspan="4">Belum ada data</td>
@@ -48,7 +48,7 @@
                                     <td class="border border-gray-800 px-2" align="right">{{ $aju->masuk }}</td>
                                     <td class="border border-gray-800 px-2" align="right">{{ $aju->sisa }}</td>
                                     <td class="border border-gray-800 px-2 py-1" align="center">
-                                        <input class="p-1 rounded bg-gray-300 " type="number" name="{{ $aju->nomor_kartu }}" value="{{ ($aju->sisa == 0) ? 0 : '' }}" {{ ($aju->sisa == 0) ? 'readonly' : '' }}>
+                                        <input class="p-1 rounded bg-gray-300 " type="number" name="{{ $aju->nomor_kartu }}" value="{{ ($aju->sisa == 0) ? 0 : 0 }}" {{ ($aju->sisa == 0) ? 'readonly' : '' }}>
                                     </td>
                                     <td class="border border-gray-800 px-2">
                                         {{ $aju->satuan }}

@@ -162,7 +162,7 @@ class DaftarController extends Controller
                             ->leftJoin('barangs', 'spbs.barang_id', '=', 'barangs.id')
                             ->leftJoin('pemesans', 'spbs.pemesan_id', '=', 'pemesans.id')
                             ->leftJoin(
-                                        DB::raw("(SELECT * FROM kartustoks WHERE nomor_spb = '$nomor_spb') AS realisasi"), 
+                                        DB::raw("(SELECT nomor_kartu, masuk, keluar, sisa FROM kartustoks WHERE nomor_spb = '$nomor_spb') AS realisasi"), 
                                         'barangs.nomor_kartu', '=', 'realisasi.nomor_kartu'
                                     )
                             ->where('spbs.nomor_spb', '=',  $nomor_spb)
@@ -179,17 +179,27 @@ class DaftarController extends Controller
                                         'pemesans.poksi',
                                         'realisasi.masuk',
                                         'realisasi.keluar',
-                                        'realisasi.sisa'
+                                        'realisasi.sisa',
                                     )
                             ->paginate(10);
-        $daftarsbbk = Sbbk::select('sbbks.*', 'pemesans.nama')
+        $total_sisa = 0;
+        foreach($detailaju as $aju)
+        {
+            $total_sisa = $total_sisa+$aju->sisa;
+        }
+
+        $daftarsbbk = Sbbk::select('sbbks.nomor_sbbk', 'sbbks.epoch_sbbk', 'pemesans.nama')
                         ->leftJoin('pemesans', 'sbbks.nip_penerima', '=', 'pemesans.id')
                         ->where('nomor_spb', '=', $nomor_spb)
+                        ->groupBy('sbbks.nomor_sbbk', 'sbbks.epoch_sbbk', 'pemesans.nama')
+                        ->orderBy('sbbks.epoch_sbbk', 'desc')
                         ->paginate(10);
+
         return view('pages.detailaju', [
                                         'detailaju' => $detailaju,
                                         'ajuApproval' => $ajuApproval,
-                                        'daftarsbbk' => $daftarsbbk
+                                        'daftarsbbk' => $daftarsbbk,
+                                        'total_sisa' => $total_sisa
                                     ]);
     }
 
@@ -243,31 +253,41 @@ class DaftarController extends Controller
         {
             abort(403);
         }
-        $sbbk = new Sbbk;
-        $sbbk->nomor_spb = $request->input('nomor_spb');
-        $sbbk->nip_penerima = $request->input('nip_penerima');
-        $sbbk->epoch_sbbk = time();
-        $sbbk->nomor_sbbk = rand(1000, 9999).'/SBBK/WASDAR/'.date("d/m/y", time());
+        // insert pengajuan sbbk ke tabel
 
-        if($sbbk->save())
+        $data = $request->except('_token');
+        $nomor_sbbk = rand(1000, 9999).'/SBBK/WASDAR/'.date("d/m/y", time());
+        $sbbk = null;
+        
+        foreach($data as $key=>$value)
         {
-            // update kartustok
-            $data = $request->except('_token');
-            foreach($data as $key=>$value)
+            if($key !== "nomor_spb" && $key !== "nip_penerima")
             {
-                if($key !== "nomor_spb" && $key !== "nip_penerima")
+                if($value > 0)
                 {
-                   if($value != 0 && $value > 0)
-                   {
-                    DB::statement("update kartustoks set keluar = keluar + $value, sisa = sisa-$value, nomor_sbbk = '$sbbk->nomor_sbbk' where nomor_spb = '$sbbk->nomor_spb'and nomor_kartu = $key");
-                   }
+                    $sbbk = new Sbbk;
+                    $sbbk->nomor_spb = $request->input('nomor_spb');
+                    $sbbk->nip_penerima = $request->input('nip_penerima');
+                    $sbbk->epoch_sbbk = time();
+                    $sbbk->nomor_sbbk = $nomor_sbbk;
+                    $sbbk->nomor_kartu = $key;
+                    $sbbk->jumlah_keluar = $value;
+
+                    if($sbbk->save()) 
+                    {   //update kartustoks
+                        if($value != 0 && $value > 0)
+                           {
+                            DB::statement("update kartustoks set keluar = keluar + $value, sisa = sisa-$value, nomor_sbbk = '$sbbk->nomor_sbbk' where nomor_spb = '$sbbk->nomor_spb'and nomor_kartu = $key");
+                           }
+                    }
                 }
             }
-
-            Daftarspb::where('nomor_spb', '=', $request->input('nomor_spb'))
-                        ->update(['isSbbk' => 't', 'epoch_sbbk' => $sbbk->epoch_sbbk]);
         }
-
+        if(null != $sbbk)
+        {
+            Daftarspb::where('nomor_spb', '=', $request->input('nomor_spb'))->update(['isSbbk' => 't', 'epoch_sbbk' => $sbbk->epoch_sbbk]);
+        }
+        
         return redirect()->route('daftar.ajus');
     }
 
@@ -334,7 +354,7 @@ class DaftarController extends Controller
     {
         //
         $nomor_spb = $request->input('nomor_spb');
-        $ajuApproval = Daftarspb::where('nomor_spb', '=', $nomor_spb)->first();
+        $ajuApproval = Daftarspb::where('nomor_spb', '=', $request->nomor_spb)->first();
         $detailaju = DB::table('spbs')
                             ->join('barangs', 'spbs.barang_id', '=', 'barangs.id')
                             ->join('pemesans', 'spbs.pemesan_id', '=', 'pemesans.id')
@@ -352,9 +372,14 @@ class DaftarController extends Controller
                                         'pemesans.poksi',
                                     )
                             ->get();
-        // dd($detailaju);
+
+        $itemsbbk = Sbbk::select('sbbks.*', 'barangs.nama_barang', 'barangs.satuan', 'pemesans.poksi')
+                            ->leftJoin('barangs', 'sbbks.nomor_kartu', 'barangs.nomor_kartu')
+                            ->leftJoin('pemesans', 'sbbks.nip_penerima', 'pemesans.id')
+                            ->where('nomor_sbbk', $request->nomor_sbbk)->get();
+
         $pdf = PDF::loadView('pages.printsbbk', [
-                                        'detailaju' => $detailaju,
+                                        'detailaju' => $itemsbbk,
                                         'ajuApproval' => $ajuApproval
                                     ]);
         return $pdf->stream();
